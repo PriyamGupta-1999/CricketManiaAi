@@ -1,4 +1,14 @@
-# Super Over Cricket Game
+# 🏏 CricketMania AI - Live Commentary Game
+
+**CricketMania AI** is an interactive, single-player cricket web application built with **React** and **Vite**. It features a unique **Live AI Commentary** system powered by **Google Gemini**, delivering dynamic, context-aware match commentary in multiple languages (English, Hindi, Spanish, French) based on real-time game events.
+
+### 🌟 Key Features
+- ** AI-Powered Commentary**: Uses `gemini-1.5-flash` to generate exciting, play-by-play commentary.
+- **🌍 Multi-Language Support**: Switch instantly between languages for a localized experience.
+- **⚡ Super Over Gameplay**: Fast-paced 1-over (or custom) matches with realistic scoring probabilities.
+- **🔒 Secure Architecture**: Client-side API key encryption for safe usage.
+- **📱 Responsive UI**: "Premium" feel with a mobile-first design, animated scoreboard, and accessibility support.
+
 
 A simple cricket game with live AI commentary powered by Google Gemini.
 
