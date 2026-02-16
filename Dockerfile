@@ -1,17 +1,21 @@
-# Dockerfile for React App (Multi-stage build)
-
-# Stage 1: Build the app
-FROM node:20-alpine as build
+# Stage 1: Build
+FROM node:20-alpine AS build
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the app with Nginx
+# Stage 2: Serve with Nginx on Cloud Run port 8080
 FROM nginx:alpine
+
+# Replace default nginx site config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy build output
 COPY --from=build /app/dist /usr/share/nginx/html
-# Custom nginx config to handle React Router if needed (optional for simple apps)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
