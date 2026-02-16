@@ -4,14 +4,13 @@
   --overlay-bg: rgba(0, 0, 0, 0.6);
   --text-color: #fff;
   --accent-red: #d32f2f;
+  --team-active-bg: rgba(255, 255, 255, 0.1);
 }
 
 body {
   margin: 0;
   font-family: 'Outfit', sans-serif;
-  /* Modern font */
   overflow: hidden;
-  /* Prevent scrolling for full screen 3D */
   background: #111;
 }
 
@@ -45,7 +44,6 @@ body {
   height: 100%;
   z-index: 10;
   pointer-events: none;
-  /* Let clicks pass through to 3D where no UI */
   display: flex;
   flex-direction: column;
 }
@@ -98,12 +96,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.scanner-overlay {
-  height: 100px;
-  display: flex;
-  align-items: center;
+  position: relative;
 }
 
 .scanner-toast {
@@ -117,6 +110,66 @@ body {
 .scanner-toast.wicket {
   color: var(--accent-red);
   text-shadow: 0 0 20px rgba(211, 47, 47, 0.6);
+}
+
+.scanner-toast.running {
+  color: #00e676;
+  font-size: 3rem;
+  animation: pulse 1s infinite alternate;
+}
+
+.boundary-popup {
+  position: absolute;
+  top: 20%;
+  font-size: 6rem;
+  font-weight: 900;
+  color: #fff;
+  -webkit-text-stroke: 2px var(--secondary-color);
+  text-shadow: 4px 4px 0 #000;
+  transform: rotate(-10deg);
+  animation: boundaryPop 1s ease-out;
+}
+
+@keyframes boundaryPop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2) rotate(-15deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+.fallback-stadium {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, #2e7d32 0%, #1b5e20 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 @keyframes popIn {
@@ -135,20 +188,23 @@ body {
   display: flex;
   justify-content: center;
   padding-bottom: 20px;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Footer Ticker Style */
 .broadcast-footer {
   background: rgba(0, 0, 0, 0.85);
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 400px 1fr;
+  /* Widen for new scoreboard */
   border-top: 4px solid var(--secondary-color);
   backdrop-filter: blur(10px);
 }
 
 .score-ticker {
   background: var(--primary-color);
-  padding: 15px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,58 +213,129 @@ body {
   padding-right: 30px;
 }
 
+/* Enhanced Scoreboard */
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.match-status {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  color: #aaa;
+  display: flex;
+  justify-content: space-between;
+}
+
+.winner-banner {
+  color: var(--secondary-color);
+  font-weight: bold;
+  animation: pulse 1s infinite;
+}
+
+.teams-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.team-score {
+  display: flex;
+  flex-direction: column;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.team-score.active {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.team-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.team-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.sc-score {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.sc-overs {
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+.vs-divider {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0 10px;
+}
+
+.target-banner {
+  font-size: 0.75rem;
+  color: var(--secondary-color);
+  margin-top: 2px;
+}
+
+
 .commentary-ticker {
   padding: 10px 20px;
   overflow: hidden;
   position: relative;
   color: white;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  /* Fixed height for ticker consistency */
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Component Overrides for 3D UI */
-.scoreboard {
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
-  text-align: left;
-}
-
-.score {
-  font-size: 2.5rem;
-}
-
-.overs {
-  font-size: 1rem;
-  color: #ccc;
-}
-
-/* Commentary Feed Override - make it horizontal or simple list */
+/* Commentary Feed Override */
 .commentary-feed {
-  background: transparent;
-  box-shadow: none;
-  height: 80px;
-  /* Fixed height for ticker feel */
-  overflow-y: scroll;
-  padding: 0;
+  width: 100%;
+  height: auto;
+  min-height: 40px;
+  overflow: hidden;
 }
 
-.commentary-feed h3 {
-  display: none;
+.commentary-feed ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .commentary-item {
-  background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #eee;
-  font-size: 0.9rem;
-  padding: 5px 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .commentary-item:first-child {
   color: var(--secondary-color);
-  font-weight: bold;
+  font-weight: 700;
   font-size: 1.1rem;
-  border-left: none;
-  background: transparent;
+}
+
+.commentary-loading {
+  font-style: italic;
+  color: #aaa;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  animation: pulse 1s infinite;
 }
 
 /* Modal tweaks */
@@ -218,4 +345,129 @@ body {
 
 .modal-content {
   color: #333;
+}
+
+/* Interaction Hint Overlay */
+.interaction-hint {
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 2px solid var(--secondary-color);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.interaction-hint.locked {
+  background: rgba(46, 125, 50, 0.8);
+  border-color: #69f0ae;
+  transform: scale(1.1);
+}
+
+/* Game Menu Styles */
+.game-menu {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  border: 2px solid var(--secondary-color);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+  min-width: 350px;
+  text-align: center;
+}
+
+.menu-options h2 {
+  margin-bottom: 25px;
+  color: var(--secondary-color);
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-btn {
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.menu-btn.resume {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.menu-btn.resume:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+}
+
+.menu-btn.new-game {
+  background: #1565c0;
+  color: #fff;
+}
+
+.menu-btn.new-game:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+}
+
+.menu-btn.ai-settings {
+  background: #4527a0;
+  color: #fff;
+}
+
+.menu-btn.ai-settings:hover {
+  background: #512da8;
+  transform: translateY(-2px);
+}
+
+.settings-sub-menu {
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.back-btn:hover {
+  background: #555;
+}
+
+.close-btn {
+  margin-top: 25px;
+  background: none;
+  border: 1px solid #555;
+  color: #888;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.close-btn:hover {
+  color: #fff;
+  border-color: #888;
 }

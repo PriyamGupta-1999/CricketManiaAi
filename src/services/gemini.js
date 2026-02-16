@@ -1,5 +1,13 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
+/**
+ * Generates energetic cricket commentary using Google's Gemini AI.
+ * 
+ * @param {string} apiKey - The user's Gemini API key.
+ * @param {Object} event - Details of the game event (type, runs, batsman, bowler, context).
+ * @param {string} language - The target language for commentary.
+ * @returns {Promise<string>} The generated commentary text.
+ */
 const generateCommentary = async (apiKey, event, language) => {
     if (!apiKey) {
         console.warn("No API Key provided for commentary.");
@@ -8,28 +16,40 @@ const generateCommentary = async (apiKey, event, language) => {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            safetySettings: [
+                {
+                    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+                    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                },
+                {
+                    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+                },
+            ],
+        });
 
         const prompt = `
-      You are a lively cricket commentator.
-      Generate a short, exciting commentary snippet (max 2 sentences) for the following event:
-      - Event Type: ${event.type}
-      - Runs Scored: ${event.runs}
-      - Batsman: ${event.batsman}
-      - Bowler: ${event.bowler}
-      - Extra Context: ${event.context || "N/A"}
+            Context: You are a professional cricket commentator for a high-stakes international match.
+            Event Details:
+            - Action: ${event.type}
+            - Runs: ${event.runs}
+            - Batter: ${event.batsman}
+            - Bowler: ${event.bowler}
+            - Match Situation: ${event.context || "Standard play"}
 
-      Language: ${language}
-      Tone: Energetic, professional, slightly dramatic.
-    `;
+            Task: Generate one or two sentences of exciting, immersive commentary in ${language}.
+            Style: High energy, technical but accessible, slightly dramatic. Focus on the impact of this play.
+            Constraint: Do not use placeholders. Speak as if live on air.
+        `;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
-        return text;
+        return response.text();
     } catch (error) {
-        console.error("Error generating commentary:", error);
-        return "Technical difficulties with commentary feed.";
+        console.error("Commentary Generation Failure:", error);
+        return "The commentary box is experiencing technical difficulties...";
     }
 };
 
@@ -51,15 +71,17 @@ export async function listAvailableModels(apiKey) {
         supportedMethods: m.supportedGenerationMethods || [],
     }));
 }
+/**
+ * Verifies the validity of an API key by attempting a simple generation.
+ * @param {string} apiKey - The key to verify.
+ * @returns {Promise<boolean>} True if valid, false otherwise.
+ */
 const verifyKey = async (apiKey) => {
-    // console.log(listAvailableModels(apiKey))
-    let res = await listAvailableModels(apiKey)
-    console.log(res)
     if (!apiKey) return false;
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        await model.generateContent("Test");
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        await model.generateContent("Verification test");
         return true;
     } catch (error) {
         console.error("API Key verification failed:", error);
@@ -74,11 +96,16 @@ const verifyKey = async (apiKey) => {
 // In a real app, use a more robust solution or backend proxy
 const ENCRYPTION_KEY = 'cricket-game-super-secret-key';
 
+/**
+ * Encrypts a string using a simple XOR-based salting (Client-side demonstration only).
+ * @param {string} text - Plain text to encrypt.
+ * @returns {string} Hex-encoded encrypted string.
+ */
 const encryptData = (text) => {
     if (!text) return '';
     try {
         const textToChars = text => text.split('').map(c => c.charCodeAt(0));
-        const byteHex = n => ("0" + Number(n).toString(16)).substr(-2);
+        const byteHex = n => ("0" + Number(n).toString(16)).substring(-2);
         const applySaltToChar = code => textToChars(ENCRYPTION_KEY).reduce((a, b) => a ^ b, code);
 
         return text.split('')
@@ -92,6 +119,11 @@ const encryptData = (text) => {
     }
 };
 
+/**
+ * Decrypts a hex-encoded string (Client-side demonstration only).
+ * @param {string} encoded - Hex-encoded string to decrypt.
+ * @returns {string} Decrypted plain text.
+ */
 const decryptData = (encoded) => {
     if (!encoded) return '';
     try {

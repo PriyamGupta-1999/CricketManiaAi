@@ -1,9 +1,9 @@
 import React from 'react';
 
-const CommentaryFeed = ({ commentary }) => {
+const CommentaryFeed = ({ commentary, loading }) => {
     return (
         <div className="commentary-feed">
-            <h3>Live Commentary</h3>
+            {loading && <div className="commentary-loading">Typing commentary...</div>}
             <ul>
                 {commentary.map((comm) => (
                     <li key={comm.id} className="commentary-item">
